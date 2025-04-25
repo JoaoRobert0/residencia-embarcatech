@@ -8,6 +8,14 @@
 #include "hardware/i2c.h"
 #include "hardware/adc.h"
 
+// LEDS
+#define LED_R_PIN 13
+#define LED_G_PIN 11
+
+// BOTÕES
+#define BTN_A_PIN 5
+#define BTN_B_PIN 6
+
 const uint I2C_SDA = 14;
 const uint I2C_SCL = 15;
 
@@ -60,6 +68,94 @@ void escrever_porta_logica(char *msg) {
     render_on_display(ssd, &frame_area);
 }
 
+void and() {
+    escrever_porta_logica("AND");
+
+    if (gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) {
+        gpio_put(LED_G_PIN, 1);
+        gpio_put(LED_R_PIN, 0);
+    } else {
+        gpio_put(LED_R_PIN, 1);
+        gpio_put(LED_G_PIN, 0);
+    }
+}
+
+void or() {
+    escrever_porta_logica("OR");
+
+    if (gpio_get(BTN_A_PIN) == 1 || gpio_get(BTN_B_PIN) == 1) {
+        gpio_put(LED_G_PIN, 1);
+        gpio_put(LED_R_PIN, 0);
+    } else {
+        gpio_put(LED_R_PIN, 1);
+        gpio_put(LED_G_PIN, 0);
+    }
+}
+
+void not() {
+    escrever_porta_logica("NOT");
+
+    if (gpio_get(BTN_A_PIN) == 1) {
+        gpio_put(LED_G_PIN, 0);
+        gpio_put(LED_R_PIN, 1);
+    } else {
+        gpio_put(LED_R_PIN, 0);
+        gpio_put(LED_G_PIN, 1);
+    }
+}
+
+void nand() {
+    escrever_porta_logica("NAND");
+
+    if (gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) {
+        gpio_put(LED_G_PIN, 0);
+        gpio_put(LED_R_PIN, 1);
+    } else {
+        gpio_put(LED_R_PIN, 0);
+        gpio_put(LED_G_PIN, 1);
+    }
+}
+
+void nor() {
+    escrever_porta_logica("NOR");
+
+    if (gpio_get(BTN_A_PIN) == 1 || gpio_get(BTN_B_PIN) == 1) {
+        gpio_put(LED_G_PIN, 0);
+        gpio_put(LED_R_PIN, 1);
+    } else {
+        gpio_put(LED_R_PIN, 0);
+        gpio_put(LED_G_PIN, 1);
+    }
+}
+
+void xor() {
+    escrever_porta_logica("XOR");
+
+    if ((gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) || 
+        (gpio_get(BTN_A_PIN) == 0 && gpio_get(BTN_B_PIN) == 0)) 
+    {
+        gpio_put(LED_G_PIN, 0);
+        gpio_put(LED_R_PIN, 1);
+    } else {
+        gpio_put(LED_R_PIN, 0);
+        gpio_put(LED_G_PIN, 1);
+    }
+}
+
+void xnor() {
+    escrever_porta_logica("XNOR");
+
+    if ((gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) || 
+        (gpio_get(BTN_A_PIN) == 0 && gpio_get(BTN_B_PIN) == 0)) 
+    {
+        gpio_put(LED_G_PIN, 1);
+        gpio_put(LED_R_PIN, 0);
+    } else {
+        gpio_put(LED_R_PIN, 1);
+        gpio_put(LED_G_PIN, 0);
+    }
+}
+
 int main()
 {
     stdio_init_all();   // Inicializa os tipos stdio padrão presentes ligados ao binário
@@ -81,6 +177,19 @@ int main()
     adc_gpio_init(26);
     adc_gpio_init(27);
 
+    gpio_init(LED_R_PIN);
+    gpio_set_dir(LED_R_PIN, GPIO_OUT);
+
+    gpio_init(LED_G_PIN);
+    gpio_set_dir(LED_G_PIN, GPIO_OUT);
+
+    gpio_init(BTN_A_PIN);
+    gpio_set_dir(BTN_A_PIN, GPIO_IN);
+    gpio_pull_up(BTN_A_PIN);
+
+    gpio_init(BTN_B_PIN);
+    gpio_set_dir(BTN_B_PIN, GPIO_IN);
+    gpio_pull_up(BTN_B_PIN);
 
     uint8_t estado = 0;
     while (1) {
@@ -102,25 +211,25 @@ int main()
 
         switch (estado) {
             case 0:
-                escrever_porta_logica("AND");
+                and();
                 break;
             case 1:
-                escrever_porta_logica("OR");
+                or();
                 break;
             case 2:
-                escrever_porta_logica("NOT");
+                not();
                 break;
             case 3:
-                escrever_porta_logica("NAND");
+                nand();
                 break;
             case 4:
-                escrever_porta_logica("NOR");
+                nor();
                 break;
             case 5:
-                escrever_porta_logica("XOR");
+                xor();
                 break;
             case 6:
-                escrever_porta_logica("XNOR");
+                xnor();
                 break;
         }
         sleep_ms(200);
