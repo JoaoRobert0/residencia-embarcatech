@@ -69,7 +69,7 @@ void escrever_porta_logica(char *msg) {
 }
 
 void and() {
-    escrever_porta_logica("AND");
+    escrever_porta_logica("      AND");
 
     if (gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) {
         gpio_put(LED_G_PIN, 1);
@@ -81,7 +81,7 @@ void and() {
 }
 
 void or() {
-    escrever_porta_logica("OR");
+    escrever_porta_logica("      OR");
 
     if (gpio_get(BTN_A_PIN) == 1 || gpio_get(BTN_B_PIN) == 1) {
         gpio_put(LED_G_PIN, 1);
@@ -93,7 +93,7 @@ void or() {
 }
 
 void not() {
-    escrever_porta_logica("NOT");
+    escrever_porta_logica("      NOT");
 
     if (gpio_get(BTN_A_PIN) == 1) {
         gpio_put(LED_G_PIN, 0);
@@ -105,7 +105,7 @@ void not() {
 }
 
 void nand() {
-    escrever_porta_logica("NAND");
+    escrever_porta_logica("      NAND");
 
     if (gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) {
         gpio_put(LED_G_PIN, 0);
@@ -117,7 +117,7 @@ void nand() {
 }
 
 void nor() {
-    escrever_porta_logica("NOR");
+    escrever_porta_logica("      NOR");
 
     if (gpio_get(BTN_A_PIN) == 1 || gpio_get(BTN_B_PIN) == 1) {
         gpio_put(LED_G_PIN, 0);
@@ -129,7 +129,7 @@ void nor() {
 }
 
 void xor() {
-    escrever_porta_logica("XOR");
+    escrever_porta_logica("      XOR");
 
     if ((gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) || 
         (gpio_get(BTN_A_PIN) == 0 && gpio_get(BTN_B_PIN) == 0)) 
@@ -143,7 +143,7 @@ void xor() {
 }
 
 void xnor() {
-    escrever_porta_logica("XNOR");
+    escrever_porta_logica("      XNOR");
 
     if ((gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) || 
         (gpio_get(BTN_A_PIN) == 0 && gpio_get(BTN_B_PIN) == 0)) 
