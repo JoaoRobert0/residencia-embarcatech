@@ -8,156 +8,30 @@
 #include "hardware/i2c.h"
 #include "hardware/adc.h"
 
-// LEDS
+// Leds
 #define LED_R_PIN 13
 #define LED_G_PIN 11
 
-// BOTÕES
+// Botoes
 #define BTN_A_PIN 5
 #define BTN_B_PIN 6
 
 const uint I2C_SDA = 14;
 const uint I2C_SCL = 15;
 
-void limpar() {
-    // Preparar área de renderização para o display (ssd1306_width pixels por ssd1306_n_pages páginas)
-    struct render_area frame_area = {
-        start_column : 0,
-        end_column : ssd1306_width - 1,
-        start_page : 0,
-        end_page : ssd1306_n_pages - 1
-    };
+// Assinaturas de todas as funcoes
+void limpar();
+void escrever_porta_logica(char *msg);
+void and();
+void or();
+void not();
+void nand();
+void nor();
+void xor();
+void xnor();
 
-    calculate_render_area_buffer_length(&frame_area);
-
-    // zera o display inteiro
-    uint8_t ssd[ssd1306_buffer_length];
-    memset(ssd, 0, ssd1306_buffer_length);
-    render_on_display(ssd, &frame_area);
-}
-
-void escrever_porta_logica(char *msg) {
-    // Limpar o display antes de usar
-    limpar();
-
-    struct render_area frame_area = {
-        start_column : 0,
-        end_column : ssd1306_width - 1,
-        start_page : 0,
-        end_page : ssd1306_n_pages - 1
-    };
-
-    calculate_render_area_buffer_length(&frame_area);
-
-    uint8_t ssd[ssd1306_buffer_length];
-
-    char *text[] = {
-        "                ",
-        "                ",
-        "                ",
-        msg,
-        "                ",
-    };
-
-    int y = 0;
-    for (uint i = 0; i < count_of(text); i++)
-    {
-        ssd1306_draw_string(ssd, 5, y, text[i]);
-        y += 8;
-    }
-    render_on_display(ssd, &frame_area);
-}
-
-void and() {
-    escrever_porta_logica("      AND");
-
-    if (gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) {
-        gpio_put(LED_G_PIN, 1);
-        gpio_put(LED_R_PIN, 0);
-    } else {
-        gpio_put(LED_R_PIN, 1);
-        gpio_put(LED_G_PIN, 0);
-    }
-}
-
-void or() {
-    escrever_porta_logica("      OR");
-
-    if (gpio_get(BTN_A_PIN) == 1 || gpio_get(BTN_B_PIN) == 1) {
-        gpio_put(LED_G_PIN, 1);
-        gpio_put(LED_R_PIN, 0);
-    } else {
-        gpio_put(LED_R_PIN, 1);
-        gpio_put(LED_G_PIN, 0);
-    }
-}
-
-void not() {
-    escrever_porta_logica("      NOT");
-
-    if (gpio_get(BTN_A_PIN) == 1) {
-        gpio_put(LED_G_PIN, 0);
-        gpio_put(LED_R_PIN, 1);
-    } else {
-        gpio_put(LED_R_PIN, 0);
-        gpio_put(LED_G_PIN, 1);
-    }
-}
-
-void nand() {
-    escrever_porta_logica("      NAND");
-
-    if (gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) {
-        gpio_put(LED_G_PIN, 0);
-        gpio_put(LED_R_PIN, 1);
-    } else {
-        gpio_put(LED_R_PIN, 0);
-        gpio_put(LED_G_PIN, 1);
-    }
-}
-
-void nor() {
-    escrever_porta_logica("      NOR");
-
-    if (gpio_get(BTN_A_PIN) == 1 || gpio_get(BTN_B_PIN) == 1) {
-        gpio_put(LED_G_PIN, 0);
-        gpio_put(LED_R_PIN, 1);
-    } else {
-        gpio_put(LED_R_PIN, 0);
-        gpio_put(LED_G_PIN, 1);
-    }
-}
-
-void xor() {
-    escrever_porta_logica("      XOR");
-
-    if ((gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) || 
-        (gpio_get(BTN_A_PIN) == 0 && gpio_get(BTN_B_PIN) == 0)) 
-    {
-        gpio_put(LED_G_PIN, 0);
-        gpio_put(LED_R_PIN, 1);
-    } else {
-        gpio_put(LED_R_PIN, 0);
-        gpio_put(LED_G_PIN, 1);
-    }
-}
-
-void xnor() {
-    escrever_porta_logica("      XNOR");
-
-    if ((gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) || 
-        (gpio_get(BTN_A_PIN) == 0 && gpio_get(BTN_B_PIN) == 0)) 
-    {
-        gpio_put(LED_G_PIN, 1);
-        gpio_put(LED_R_PIN, 0);
-    } else {
-        gpio_put(LED_R_PIN, 1);
-        gpio_put(LED_G_PIN, 0);
-    }
-}
-
-int main()
-{
+// Função que inicializa todos os pinos
+void setup() {
     stdio_init_all();   // Inicializa os tipos stdio padrão presentes ligados ao binário
 
     // Inicialização do i2c
@@ -190,6 +64,12 @@ int main()
     gpio_init(BTN_B_PIN);
     gpio_set_dir(BTN_B_PIN, GPIO_IN);
     gpio_pull_up(BTN_B_PIN);
+}
+
+int main()
+{    
+    // Realizar o setup
+    setup();
 
     uint8_t estado = 0;
     while (1) {
@@ -236,4 +116,149 @@ int main()
     }
 
     return 0;
+}
+
+// Função para limpar display o-led
+void limpar() {
+    struct render_area frame_area = {
+        start_column : 0,
+        end_column : ssd1306_width - 1,
+        start_page : 0,
+        end_page : ssd1306_n_pages - 1
+    };
+
+    calculate_render_area_buffer_length(&frame_area);
+
+    // zera o display inteiro
+    uint8_t ssd[ssd1306_buffer_length];
+    memset(ssd, 0, ssd1306_buffer_length);
+    render_on_display(ssd, &frame_area);
+}
+
+// Função para escrever o nome da porta logica no display o-led
+void escrever_porta_logica(char *msg) {
+    // Limpar o display antes de usar
+    limpar();
+
+    struct render_area frame_area = {
+        start_column : 0,
+        end_column : ssd1306_width - 1,
+        start_page : 0,
+        end_page : ssd1306_n_pages - 1
+    };
+
+    calculate_render_area_buffer_length(&frame_area);
+
+    uint8_t ssd[ssd1306_buffer_length];
+
+    char *text[] = {
+        "                ",
+        "                ",
+        "                ",
+        msg,
+        "                ",
+    };
+
+    int y = 0;
+    for (uint i = 0; i < count_of(text); i++)
+    {
+        ssd1306_draw_string(ssd, 5, y, text[i]);
+        y += 8;
+    }
+    render_on_display(ssd, &frame_area);
+}
+
+// Função que implementa a logica da porta and
+void and() {
+    escrever_porta_logica("      AND");
+
+    if (gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) {
+        gpio_put(LED_G_PIN, 1);
+        gpio_put(LED_R_PIN, 0);
+    } else {
+        gpio_put(LED_R_PIN, 1);
+        gpio_put(LED_G_PIN, 0);
+    }
+}
+
+// Função que implementa a logica da porta or
+void or() {
+    escrever_porta_logica("      OR");
+
+    if (gpio_get(BTN_A_PIN) == 1 || gpio_get(BTN_B_PIN) == 1) {
+        gpio_put(LED_G_PIN, 1);
+        gpio_put(LED_R_PIN, 0);
+    } else {
+        gpio_put(LED_R_PIN, 1);
+        gpio_put(LED_G_PIN, 0);
+    }
+}
+
+// Função que implementa a logica da porta not
+void not() {
+    escrever_porta_logica("      NOT");
+
+    if (gpio_get(BTN_A_PIN) == 1) {
+        gpio_put(LED_G_PIN, 0);
+        gpio_put(LED_R_PIN, 1);
+    } else {
+        gpio_put(LED_R_PIN, 0);
+        gpio_put(LED_G_PIN, 1);
+    }
+}
+
+// Função que implementa a logica da porta nand
+void nand() {
+    escrever_porta_logica("      NAND");
+
+    if (gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) {
+        gpio_put(LED_G_PIN, 0);
+        gpio_put(LED_R_PIN, 1);
+    } else {
+        gpio_put(LED_R_PIN, 0);
+        gpio_put(LED_G_PIN, 1);
+    }
+}
+
+// Função que implementa a logica da porta nor
+void nor() {
+    escrever_porta_logica("      NOR");
+
+    if (gpio_get(BTN_A_PIN) == 1 || gpio_get(BTN_B_PIN) == 1) {
+        gpio_put(LED_G_PIN, 0);
+        gpio_put(LED_R_PIN, 1);
+    } else {
+        gpio_put(LED_R_PIN, 0);
+        gpio_put(LED_G_PIN, 1);
+    }
+}
+
+// Função que implementa a logica da porta xor
+void xor() {
+    escrever_porta_logica("      XOR");
+
+    if ((gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) || 
+        (gpio_get(BTN_A_PIN) == 0 && gpio_get(BTN_B_PIN) == 0)) 
+    {
+        gpio_put(LED_G_PIN, 0);
+        gpio_put(LED_R_PIN, 1);
+    } else {
+        gpio_put(LED_R_PIN, 0);
+        gpio_put(LED_G_PIN, 1);
+    }
+}
+
+// Função que implementa a logica da porta xnor
+void xnor() {
+    escrever_porta_logica("      XNOR");
+
+    if ((gpio_get(BTN_A_PIN) == 1 && gpio_get(BTN_B_PIN) == 1) || 
+        (gpio_get(BTN_A_PIN) == 0 && gpio_get(BTN_B_PIN) == 0)) 
+    {
+        gpio_put(LED_G_PIN, 1);
+        gpio_put(LED_R_PIN, 0);
+    } else {
+        gpio_put(LED_R_PIN, 1);
+        gpio_put(LED_G_PIN, 0);
+    }
 }
