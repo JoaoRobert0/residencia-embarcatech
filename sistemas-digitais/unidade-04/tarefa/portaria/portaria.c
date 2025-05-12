@@ -254,27 +254,27 @@ void atualizar_inputs() {
     npClear();
 
     if (inputs[0] == 1) {
-        npSetLED(14, 0, 255, 0);
+        npSetLED(4, 0, 255, 0);
     } else {
-        npSetLED(14, 255, 0, 0);
+        npSetLED(4, 255, 0, 0);
     }
 
     if (inputs[1] == 1) {
-        npSetLED(13, 0, 255, 0);
+        npSetLED(3, 0, 255, 0);
     } else {
-        npSetLED(13, 255, 0, 0);
+        npSetLED(3, 255, 0, 0);
     }
 
     if (inputs[2] == 1) {
-        npSetLED(12, 0, 255, 0);
+        npSetLED(2, 0, 255, 0);
     } else {
-        npSetLED(12, 255, 0, 0);
+        npSetLED(2, 255, 0, 0);
     }
 
     if (inputs[3] == 1) {
-        npSetLED(11, 0, 255, 0);
+        npSetLED(1, 0, 255, 0);
     } else {
-        npSetLED(11, 255, 0, 0);
+        npSetLED(1, 255, 0, 0);
     }
 
     npWrite();
