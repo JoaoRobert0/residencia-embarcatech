@@ -310,21 +310,21 @@ void joystick_pressionado(indice) {
 }
 
 void gr() {
-    escrever_msg("GR");
+    escrever_msg("0 - GR");
     joystick_pressionado(0);
 }
 
 void ho() {
-    escrever_msg("HO");
+    escrever_msg("1 - HO");
     joystick_pressionado(1);
 }
 
 void di() {
-    escrever_msg("DI");
+    escrever_msg("2 - DI");
     joystick_pressionado(2);
 }
 
 void pt() {
-    escrever_msg("PT");
+    escrever_msg("3 - PT");
     joystick_pressionado(3);
 }
